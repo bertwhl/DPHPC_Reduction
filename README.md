@@ -37,5 +37,5 @@ Prerequisite：no
 Prerequisite: all above  
 ### 7.High-dimension(not mandatory)
 ## Resources
-DaCe Documentation: https://spcldace.readthedocs.io/en/latest/index.html
+DaCe Documentation: https://spcldace.readthedocs.io/en/latest/index.html  
 DaCe GitHub: https://github.com/spcl/dace
