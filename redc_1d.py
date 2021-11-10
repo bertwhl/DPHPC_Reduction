@@ -8,7 +8,7 @@ from dace.frontend.common import op_repository as oprepo
 from util import find_map_by_param, sync_threads
 
 @dace.program
-def myprog(a: dace.float64[512]):
+def redc_1d(a: dace.float64[512]):
     for i in dace.map[0:1]:
         for j, k in dace.map[0:16, 0:32]:
             stride = 512
