@@ -1,2 +1,0 @@
-cpu,,redc_1d.cpp
-cuda,,redc_1d_cuda.cu

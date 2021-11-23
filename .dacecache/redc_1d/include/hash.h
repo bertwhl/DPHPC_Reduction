@@ -1,1 +1,0 @@
-#define __HASH_redc_1d "3b90f8fe8a1ad660e7563ec40f71477b179c9130369ce2fff4c974afc380ee75"
