@@ -1,0 +1,2 @@
+cpu,,reduce_test3.cpp
+cuda,,reduce_test3_cuda.cu

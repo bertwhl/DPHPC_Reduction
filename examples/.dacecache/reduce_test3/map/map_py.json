@@ -1,0 +1,118 @@
+{
+    "<ipython-input-4-b931fd1ea7d0>": {
+        "5": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 3
+            }
+        ],
+        "6": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 4
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 5
+            }
+        ],
+        "7": [
+            {
+                "sdfg_id": 2,
+                "state_id": 0,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 0,
+                "node_id": 1
+            }
+        ],
+        "8": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 3
+            }
+        ],
+        "10": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 4
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 5
+            }
+        ],
+        "9": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 6
+            }
+        ],
+        "4": [
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 3
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 4
+            }
+        ]
+    },
+    "/home/hailwang/anaconda3/lib/python3.8/site-packages/dace/sdfg/state.py": {
+        "1349": [
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 5
+            }
+        ]
+    },
+    "/home/hailwang/DPHPC_Reduction/examples/<ipython-input-4-b931fd1ea7d0>": {}
+}

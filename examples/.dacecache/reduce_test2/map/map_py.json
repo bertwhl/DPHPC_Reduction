@@ -1,0 +1,169 @@
+{
+    "<ipython-input-3-64392c723962>": {
+        "5": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 3
+            }
+        ],
+        "7": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 4
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 5
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 7
+            }
+        ],
+        "8": [
+            {
+                "sdfg_id": 2,
+                "state_id": 0,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 0,
+                "node_id": 1
+            }
+        ],
+        "9": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 3
+            }
+        ],
+        "11": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 4
+            },
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 5
+            }
+        ],
+        "10": [
+            {
+                "sdfg_id": 2,
+                "state_id": 1,
+                "node_id": 6
+            }
+        ],
+        "12": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 8
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 9
+            }
+        ],
+        "13": [
+            {
+                "sdfg_id": 4,
+                "state_id": 0,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 4,
+                "state_id": 0,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 4,
+                "state_id": 0,
+                "node_id": 2
+            }
+        ],
+        "15": [
+            {
+                "sdfg_id": 4,
+                "state_id": 1,
+                "node_id": 0
+            },
+            {
+                "sdfg_id": 4,
+                "state_id": 1,
+                "node_id": 1
+            },
+            {
+                "sdfg_id": 4,
+                "state_id": 1,
+                "node_id": 2
+            }
+        ],
+        "4": [
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 2
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 3
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 4
+            }
+        ]
+    },
+    "/home/hailwang/anaconda3/lib/python3.8/site-packages/dace/sdfg/state.py": {
+        "1349": [
+            {
+                "sdfg_id": 0,
+                "state_id": 1,
+                "node_id": 5
+            }
+        ]
+    },
+    "/home/hailwang/DPHPC_Reduction/examples/<ipython-input-3-64392c723962>": {}
+}

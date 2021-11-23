@@ -1,0 +1,10 @@
+======================================================
+GPU Device No.0: GeForce RTX 2080 Ti
+Total Global Memory Size: 11016MB
+Number of Streaming Multiprocessor:68
+Shared Memory per Block:48 KB
+Maximum Number of Threads per Block:1024
+Number of Registers per Block: 65536
+Maximum Number of Threads per SM:1024
+Maximum Number of Warps per SM:32
+======================================================
