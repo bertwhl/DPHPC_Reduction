@@ -1,9 +1,4 @@
 # Matrix Reduction Project in DPHPC Course
-## TODO（WEEK3）
-Boyan: 1  
-Anqi: 6.1  
-Haoran: 2  
-Hailin: 1, 2  
 ## PLAN
 ### 1.研究DaCe的使用
 主要研究Dace的Mapping与生成代码的对应，如何生成我们想要的代码。
