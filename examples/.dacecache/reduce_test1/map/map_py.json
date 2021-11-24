@@ -1,16 +1,6 @@
 {
     "<ipython-input-2-fce4f34dbac5>": {
-        "5": [
-            {
-                "sdfg_id": 0,
-                "state_id": 0,
-                "node_id": 0
-            },
-            {
-                "sdfg_id": 0,
-                "state_id": 0,
-                "node_id": 1
-            },
+        "4": [
             {
                 "sdfg_id": 0,
                 "state_id": 0,
@@ -20,18 +10,18 @@
                 "sdfg_id": 0,
                 "state_id": 0,
                 "node_id": 3
-            }
-        ],
-        "7": [
-            {
-                "sdfg_id": 0,
-                "state_id": 0,
-                "node_id": 4
             },
             {
                 "sdfg_id": 0,
                 "state_id": 0,
-                "node_id": 5
+                "node_id": 4
+            }
+        ],
+        "5": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 6
             },
             {
                 "sdfg_id": 0,
@@ -39,60 +29,7 @@
                 "node_id": 7
             }
         ],
-        "8": [
-            {
-                "sdfg_id": 2,
-                "state_id": 0,
-                "node_id": 0
-            },
-            {
-                "sdfg_id": 2,
-                "state_id": 0,
-                "node_id": 1
-            }
-        ],
-        "9": [
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 0
-            },
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 1
-            },
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 2
-            },
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 3
-            }
-        ],
-        "11": [
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 4
-            },
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 5
-            }
-        ],
-        "10": [
-            {
-                "sdfg_id": 2,
-                "state_id": 1,
-                "node_id": 6
-            }
-        ],
-        "12": [
+        "7": [
             {
                 "sdfg_id": 0,
                 "state_id": 0,
@@ -102,57 +39,100 @@
                 "sdfg_id": 0,
                 "state_id": 0,
                 "node_id": 9
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 10
+            }
+        ],
+        "12": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 11
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 12
             }
         ],
         "13": [
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 0,
                 "node_id": 0
             },
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 0,
                 "node_id": 1
             },
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 0,
                 "node_id": 2
             }
         ],
         "15": [
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 1,
                 "node_id": 0
             },
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 1,
                 "node_id": 1
             },
             {
-                "sdfg_id": 4,
+                "sdfg_id": 1,
                 "state_id": 1,
                 "node_id": 2
             }
         ],
-        "4": [
+        "8": [
             {
                 "sdfg_id": 0,
-                "state_id": 1,
-                "node_id": 2
+                "state_id": 0,
+                "node_id": 14
             },
             {
                 "sdfg_id": 0,
-                "state_id": 1,
-                "node_id": 3
+                "state_id": 0,
+                "node_id": 15
+            }
+        ],
+        "9": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 16
             },
             {
                 "sdfg_id": 0,
-                "state_id": 1,
-                "node_id": 4
+                "state_id": 0,
+                "node_id": 17
+            },
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 18
+            }
+        ],
+        "11": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 19
+            }
+        ],
+        "10": [
+            {
+                "sdfg_id": 0,
+                "state_id": 0,
+                "node_id": 20
             }
         ]
     },
@@ -160,7 +140,7 @@
         "1349": [
             {
                 "sdfg_id": 0,
-                "state_id": 1,
+                "state_id": 0,
                 "node_id": 5
             }
         ]
