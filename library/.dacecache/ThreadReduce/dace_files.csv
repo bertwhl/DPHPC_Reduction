@@ -1,2 +1,0 @@
-cpu,,ThreadReduce.cpp
-cuda,,ThreadReduce_cuda.cu

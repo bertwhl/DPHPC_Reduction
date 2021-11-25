@@ -1,1 +1,0 @@
-#define __HASH_WarpReadWarpReduce "6afb12bf8b7a5a6e4285bab222395a9302498d5681b428f8b1daeda3c4e18f1a"

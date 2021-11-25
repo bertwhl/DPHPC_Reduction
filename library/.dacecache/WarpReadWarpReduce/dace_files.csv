@@ -1,2 +1,0 @@
-cpu,,WarpReadWarpReduce.cpp
-cuda,,WarpReadWarpReduce_cuda.cu
