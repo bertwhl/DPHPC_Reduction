@@ -1,1 +1,0 @@
-#define __HASH_reduce_test1 "b6fe9852d1daf9a3ff92761494a2c8263decc91a0f35ca5e4c182030a16dcb63"

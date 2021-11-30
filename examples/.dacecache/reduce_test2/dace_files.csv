@@ -1,2 +1,0 @@
-cpu,,reduce_test2.cpp
-cuda,,reduce_test2_cuda.cu

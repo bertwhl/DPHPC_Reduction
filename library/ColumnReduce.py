@@ -99,21 +99,68 @@ def ThreadReduce(inputs: dace.float64[H, W], gridDim_x: dace.int64, blockDim_x: 
                 outputs[colIdx] += value
     return outputs
 
+@dace.program
+def ThreadReduceAlign(inputs: dace.float64[H, W], gridDim_x: dace.int64, gridDim_y: dace.int64, blockDim_x: dace.int64, loopNum: dace.int64):
+    # define and initialize the output vector
+    outputs = dace.ndarray([W], dtype=dace.float64)
+    outputs[:] = 0
+    # blocks mapping
+    for blockIdx_y, blockIdx_x in dace.map[0:gridDim_y, 0:gridDim_x]:
+        # thread mapping
+        for threadIdx_x in dace.map[0:blockDim_x]:
+            # initialize value
+            value = dace.float64(0)
+            # calculate the indexes
+            rowIdx = blockIdx_y
+            colIdx = blockDim_x * blockIdx_x + threadIdx_x
+            # sum up the values
+            if colIdx<W:
+                delta = gridDim_y
+                for loopIdx in dace.map[0:loopNum]:
+                    if rowIdx<H:
+                        value += inputs[rowIdx, colIdx]
+                    rowIdx += delta
+                # write back to global memory with atomic add
+                outputs[colIdx] += value
+    return outputs
+
+@dace.program
+def ThreadReduceAlign1(inputs: dace.float64[H, W], gridDim_x: dace.int64, blockDim_x: dace.int64, blockDim_y: dace.int64, loopNum: dace.int64):
+    # define and initialize the output vector
+    outputs = dace.ndarray([W], dtype=dace.float64)
+    outputs[:] = 0
+    # blocks mapping
+    for blockIdx_x in dace.map[0:gridDim_x]:
+        # thread mapping
+        for threadIdx_y, threadIdx_x in dace.map[0:blockDim_y, 0:blockDim_x]:
+            # initialize value
+            value = dace.float64(0)
+            # calculate the indexes
+            rowIdx = blockIdx_x * blockDim_y + threadIdx_y
+            colIdx = threadIdx_x
+            # sum up the values
+            delta = gridDim_x * blockDim_y
+            for loopIdx in dace.map[0:loopNum]:
+                if rowIdx<H:
+                    value += inputs[rowIdx, colIdx]
+                rowIdx += delta
+            # write back to global memory with atomic add
+            outputs[colIdx] += value
+    return outputs
+
 if __name__ == '__main__':
     # Transform to GPU, keep thread-block map
-    sdfg = WarpReadWarpReduceCorner.to_sdfg()
+    sdfg = ThreadReduceAlign1.to_sdfg()
     sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    h = 1024*64
-    w = 7
-    BlockPerColumn = 64
-    # calculate the number of values read and sum up first
-    RowPerWarp = 32//w
-    RowPerBlock = 32*RowPerWarp
-    loopNum = (h+RowPerBlock*BlockPerColumn-1)//(RowPerBlock*BlockPerColumn)
+    h = 1024
+    w = 17
+    BlockPerColumn = 32
+    RowPerBlock = 16
+    loopNum = (h+BlockPerColumn*RowPerBlock-1)//(BlockPerColumn*RowPerBlock)
 
     # Test
     inputs = np.random.rand(h, w)
-    outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerColumn, rowNum_warp=RowPerWarp, rowNum_block=RowPerBlock, loopNum=loopNum)
+    outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerColumn, blockDim_x=w, blockDim_y=RowPerBlock, loopNum=loopNum)
     compared = np.sum(inputs, axis=0)
     assert np.allclose(outputs, compared)
