@@ -1,7 +1,7 @@
 import numpy as np
 from dace.transformation.interstate import GPUTransformSDFG
 
-import Reduce2D
+import Reduce1D, Reduce2D
 
 # squeeze the dimensions
 def squeeze(a, axis):
@@ -49,10 +49,24 @@ def Reduce(inputs, axis):
     # The Scheduler
     # 1-D case
     if Dim == 1:
-        '''
-        TODO: WRITE AND TEST 1D REDUCTION FUNCTION AND CALL FUNCTION HERE
-        '''
-        return
+        w, = Shape
+
+        # calculate parameters
+        BlockMax = (w+512-1)//512
+        if (BlockMax<4*BlockDefault):
+            BlockNum = BlockMax
+            loopNum = 1
+        else:
+            BlockNum = 4*BlockDefault
+            loopNum = (w+512*BlockNum-1)//(512*BlockNum)
+
+        # create sdfg
+        sdfg = Reduce1D.Reduce.to_sdfg()
+        sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+        # reduce
+        outputs = sdfg(W=w, inputs=inputs, gridDim_x=BlockNum, loopNum=loopNum)
+        return outputs
 
     # 2-D case
     if Dim == 2:
@@ -85,15 +99,16 @@ def Reduce(inputs, axis):
         # Column Reduction
         if RedType == 0:
 
-            # Normal Case
+            # Narrow Case
             if (w<16 and h>1024*8):
                 # calculate parameters
                 BlockMax = (h+32-1)//32
                 if BlockDefault > BlockMax:
                     BlockPerColumn = BlockMax
+                    loopNum = 1
                 else:
                     BlockPerColumn = BlockDefault
-                loopNum = (h+32*BlockPerColumn-1)//(32*BlockPerColumn)
+                    loopNum = (h+32*BlockPerColumn-1)//(32*BlockPerColumn)
 
                 # create sdfg
                 sdfg = Reduce2D.ColReduceNarrow.to_sdfg()
@@ -103,7 +118,7 @@ def Reduce(inputs, axis):
                 outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerColumn, loopNum=loopNum)
                 return outputs
 
-            # Narrow Case
+            # Normal Case
             else:
                 # calculate parameters
                 if w>256:
@@ -137,7 +152,7 @@ def Reduce(inputs, axis):
                 return outputs
 
 if __name__ == '__main__':
-    inputs = np.random.rand(1024*64, 12)
-    compared = np.sum(inputs, axis=(0))
-    outputs = Reduce(inputs, axis=(0))
+    inputs = np.random.rand(1024,1024,128)
+    compared = np.sum(inputs, axis=(0,1,2))
+    outputs = Reduce(inputs, axis=(0,1,2))
     assert np.allclose(outputs, compared)
