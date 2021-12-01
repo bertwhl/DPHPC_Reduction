@@ -39,7 +39,7 @@ def WarpReadWarpReduce(inputs: dace.float64[H, W], gridDim_x: dace.int64, gridDi
     return outputs
 
 @dace.program
-def WarpReadWarpReduceCorner(inputs: dace.float64[H, W], gridDim_x: dace.int64, rowNum_warp: dace.int64, rowNum_block: dace.int64, loopNum: dace.int64):
+def WarpReadWarpReduceCornerOld(inputs: dace.float64[H, W], gridDim_x: dace.int64, rowNum_warp: dace.int64, rowNum_block: dace.int64, loopNum: dace.int64):
     # define and initialize the output vector
     outputs = dace.ndarray([W], dtype=dace.float64)
     outputs[:] = 0
@@ -66,6 +66,41 @@ def WarpReadWarpReduceCorner(inputs: dace.float64[H, W], gridDim_x: dace.int64, 
         for threadIdx_z, threadIdx_y, threadIdx_x in dace.map[0:W,0:rowNum_warp,0:32]:
             rowIdx = 32*threadIdx_y + threadIdx_x
             colIdx = threadIdx_z
+            # warp reduce
+            reduced = warpReduce_sum(shared[W*rowIdx + colIdx])
+            # write back to global memory with atomic add
+            if threadIdx_x==0:
+                outputs[colIdx] += reduced
+    return outputs
+
+@dace.program
+def WarpReadWarpReduceCorner(inputs: dace.float64[H, W], gridDim_x: dace.int64, loopNum: dace.int64):
+    # define and initialize the output vector
+    outputs = dace.ndarray([W], dtype=dace.float64)
+    outputs[:] = 0
+    # blocks mapping
+    for blockIdx_x in dace.map[0:gridDim_x]:
+        shared = dace.ndarray([1024], dtype=dace.float64, storage=dace.StorageType.GPU_Shared)
+        for threadIdx_y, threadIdx_x in dace.map[0:W, 0:32]:
+            # initialize value
+            value = dace.float64(0)
+            # calculate the indexs
+            threadIdx = 32*threadIdx_y + threadIdx_x
+            colIdx = threadIdx%W
+            rowIdx_offset = dace.int64(threadIdx/W)
+            rowIdx = 32*blockIdx_x + rowIdx_offset
+            rowIdx_delta = 32*gridDim_x
+            for loopIdx in dace.map[0:loopNum]:
+                # add the value
+                if rowIdx<H:
+                    value += inputs[rowIdx, colIdx]
+                rowIdx += rowIdx_delta
+            # write the value into shared memory
+            shared[W*rowIdx_offset + colIdx] = value
+        # synchronize here
+        for threadIdx_y, threadIdx_x in dace.map[0:W, 0:32]:
+            rowIdx = threadIdx_x
+            colIdx = threadIdx_y
             # warp reduce
             reduced = warpReduce_sum(shared[W*rowIdx + colIdx])
             # write back to global memory with atomic add

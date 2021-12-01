@@ -21,17 +21,15 @@ def test_WarpReadWarpReduceCorner(h, w, BlockPerColumn):
     sdfg = WarpReadWarpReduceCorner.to_sdfg()
     sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    h = 1024*64
-    w = 7
     BlockPerColumn = 64
     # calculate the number of values read and sum up first
-    RowPerWarp = 32//w
-    RowPerBlock = 32*RowPerWarp
-    loopNum = (h+RowPerBlock*BlockPerColumn-1)//(RowPerBlock*BlockPerColumn)
+    # RowPerWarp = 32//w
+    # RowPerBlock = 32*RowPerWarp
+    loopNum = (h+32*BlockPerColumn-1)//(32*BlockPerColumn)
 
     # Test
     inputs = np.random.rand(h, w)
-    outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerColumn, rowNum_warp=RowPerWarp, rowNum_block=RowPerBlock, loopNum=loopNum)
+    outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerColumn, loopNum=loopNum)
     compared = np.sum(inputs, axis=0)
     assert np.allclose(outputs, compared)
 
@@ -86,13 +84,13 @@ def test_BERT(method, size):
         h = 4096
         w = 4096
     elif size == 'test':
-        h = 1024*16
-        w = 17
+        h = 1024
+        w = 7
     
-    if method == 'WRWR':
+    if method == 'WR':
         BlockPerColumn = 64
         test_WarpReadWarpReduce(h, w, BlockPerColumn)
-    elif method == 'WRWRC':
+    elif method == 'WRC':
         BlockPerColumn = 64
         test_WarpReadWarpReduceCorner(h, w, BlockPerColumn)
     elif method == 'TR':
@@ -109,8 +107,5 @@ def test_BERT(method, size):
         RowPerBlock = 8
         test_ThreadReduceAlign1(h, w, BlockPerColumn, RowPerBlock)
 
-
-        
-
 if __name__ == '__main__':
-    test_BERT('WRWR','test')
+    test_BERT('WR','test')
