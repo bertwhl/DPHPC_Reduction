@@ -36,7 +36,6 @@ def runWithTwoArgs(cmd, arg_list_1, arg_list_2):
                 time_string = getAvgGPUTime(cmd_output)
                 time_us = getTimeUs(time_string)
                 print('{0:2d} {1:4d} {2:8f}'.format(a1, a2, time_us))
-                print(a1, a2, time_us)
 
 def runWithThreeArgs(cmd, arg_list_1, arg_list_2, arg_list_3):
     for a1 in arg_list_1:
@@ -49,6 +48,7 @@ def runWithThreeArgs(cmd, arg_list_1, arg_list_2, arg_list_3):
                 print('{0:2d} {1:4d} {2:6d} {3:10f}'.format(a1, a2, a3, time_us))
 
 if __name__ == '__main__':
+    subprocess.getoutput("conda activate dace")
     runWithThreeArgs("nvprof python library/mwpr.py {} {} {}", [1], [128, 256], [512, 1024])
 
  
