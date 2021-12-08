@@ -62,7 +62,6 @@ def AB_MWPR_3(inputs: dace.float64[H, W], bn: dace.int64, ln: dace.int64, rpb: d
     for block_id in dace.map[0:bn]:
         _rpb = dace.int32(rpb)
         _wpr = dace.int32(wpr)
-        shared = dace.ndarray([32,32], dtype=dace.float64, storage=dace.StorageType.GPU_Shared)
         for warp_id_x, warp_id_y, thread_id in dace.map[0:rpb, 0:wpr, 0:32]:
             value = dace.float64(0)
             row_id = block_id * _rpb + warp_id_x
