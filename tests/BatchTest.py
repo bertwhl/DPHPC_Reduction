@@ -24,7 +24,7 @@ def getAvgGPUTime(str):
             if len(item_list) < 4:
                 raise Exception('cannot find desired contents')
             return item_list[3]
-        if line.find("API calls:") != -1:
+        if line.find("API calls:") != -1 or line.find("Error") != -1:
             raise Exception('cannot find desired contents')
     raise Exception('cannot find desired contents')
 
