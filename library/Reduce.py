@@ -91,14 +91,74 @@ def Reduce(inputs, axis):
 
             # multi-line-per-block Case
             elif (h>=64):
-                '''
-                TODO: WRITE AND TEST 2D ROW REDUCTION FUNCTION AND FINISH THE SCHEDULER HERE
-                '''
-                return
+                if (h>BlockDefault*32):
+                    RowPerBlockRaw = 32
+                    WarpPerRow = 1
+                else:
+                    RowPerBlockRaw = (h+BlockDefault-1)//BlockDefault
+                    WarpMax = (w+32-1)//32
+                    WarpAva = 32//RowPerBlock
+                    if (WarpAva>WarpMax):
+                        WarpPerRow = WarpMax
+                    else:
+                        WarpPerRow = WarpAva
+                BlockNum = (h+RowPerBlock-1)//RowPerBlock
+                loopNum = (w+WarpPerRow*32-1)//(WarpPerRow*32)
+
+                # create sdfg
+                sdfg = Reduce2D.RowReduceMulti.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(H=h, W=w, inputs=inputs, bn=BlockNum, ln=loopNum, rpb=RowPerBlock, wpr=WarpPerRow)
+                return outputs
 
             # use no-loop version
             elif (w<=1024):
+                # calculate parameters
                 WarpPerBlock = (w+31)//32
+
+                # create sdfg
+                sdfg = Reduce2D.RowReduceNoLoop.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(H=h, W=w, inputs=inputs, blockDim_y=WarpPerBlock)
+                return outputs
+
+            # use global memory version
+            elif (h>32):
+                # calculate parameters
+                if (h==64):
+                    BlockPerRow = 1
+                else:
+                    BlockPerRow = 2
+                loopNum = (w+BlockPerRow*1024-1)//(BlockPerRow*1024)
+
+                # create sdfg
+                sdfg = Reduce2D.RowReduceGlobal.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_y=BlockPerRow, loopNum=loopNum)
+                return outputs
+            
+            # use shared memory
+            else:
+                # calculate parameters
+                BlockPerRow = BlockDefault//h
+                loopNum = (w+BlockPerRow*1024-1)//(BlockPerRow*1024)
+
+                # create sdfg
+                sdfg = Reduce2D.RowReduceShared.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_y=BlockPerRow, loopNum=loopNum)
+                return outputs
+
+                
+
                 
         # Column Reduction
         if RedType == 0:
