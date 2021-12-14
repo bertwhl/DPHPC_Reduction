@@ -15,8 +15,9 @@ def AB_MWPR_1(inputs: dace.float64[H, W], wn: dace.int64):
     outputs[:] = 0
     for block_id in dace.map[0:H]:
         for warp_id, thread_id in dace.map[0:wn, 0:32]:
-            col = warp_id*32+thread_id
-            reduced = warpReduce_sum(inputs[block_id, col])
+            col_id = warp_id*32+thread_id
+            if col_id < W:
+                reduced = warpReduce_sum(inputs[block_id, col_id])
             if thread_id == 0:
                 outputs[block_id] += reduced
     return outputs

@@ -66,6 +66,67 @@ def ColReduceNarrow(inputs: dace.float64[H, W], gridDim_x: dace.int64, loopNum: 
                 outputs[colIdx] += reduced
     return outputs
 
+# no-loop version
+@dace.program
+def RowReduceNoLoop(inputs: dace.float64[H, W], blockDim_x: dace.int64):
+    outputs = dace.ndarray([H], dtype=dace.float64)
+    outputs[:] = 0
+    for block_id in dace.map[0:H]:
+        for warp_id, thread_id in dace.map[0:blockDim_x, 0:32]:
+            col_id = warp_id*32+thread_id
+            if col_id < W:
+                reduced = warpReduce_sum(inputs[block_id, col_id])
+            if thread_id == 0:
+                outputs[block_id] += reduced
+    return outputs
+
+# atomic add to global memory
+@dace.program
+def RowReduceGlobal(inputs: dace.float64[H, W], num_blocks_per_row: dace.int64, loopNum: dace.int64):
+    outputs = dace.ndarray([H], dtype=dace.float64)
+    outputs[:] = 0
+    for blockIdx_y, blockIdx_x in dace.map[0:num_blocks_per_row, 0:H]:
+        for warp_id, thread_id in dace.map[0:32,0:32]:
+            row_id = blockIdx_x
+            col_id = 1024*blockIdx_y + 32*warp_id +thread_id
+            delta = 1024*num_blocks_per_row
+            value = dace.float64(0)
+            for loopIdx in dace.map[0:loopNum]:
+                if col_id<W:
+                    value += inputs[row_id, col_id]
+                col_id += delta
+            reduced = warpReduce_sum(value)
+            if thread_id == 0:
+                outputs[row_id] += reduced
+    return outputs
+
+# atomic add to shared memory first, then global memory
+@dace.program
+def RowReduceShared(inputs: dace.float64[H, W], num_blocks_per_row: dace.int64, loopNum: dace.int64):
+    outputs = dace.ndarray([H], dtype=dace.float64)
+    outputs[:] = 0
+    for blockIdx_y, blockIdx_x in dace.map[0:num_blocks_per_row, 0:H]:
+        shared = dace.ndarray([32], dtype=dace.float64, storage=dace.StorageType.GPU_Shared)
+        row_id = blockIdx_x
+        for warp_id, thread_id in dace.map[0:32,0:32]:
+            col_id = 1024*blockIdx_y + 32*warp_id +thread_id
+            delta = 1024*num_blocks_per_row
+            value = dace.float64(0)
+            for loopIdx in dace.map[0:loopNum]:
+                if col_id<W:
+                    value += inputs[row_id, col_id]
+                col_id += delta
+            reduced = warpReduce_sum(value)
+            if thread_id == 0:
+                shared[warp_id] = reduced
+        for warp_id, thread_id in dace.map[0:32,0:32]:
+            if warp_id == 0:
+                value = shared[thread_id]
+                reduced = warpReduce_sum(value)
+                if thread_id == 0:
+                    outputs[row_id] += reduced
+    return outputs
+
 # narrow corner case for row reduce
 @dace.program
 def RowReduceNarrow(inputs: dace.float64[H, W], gridDim_x: dace.int64, blockDim_x: dace.int64):

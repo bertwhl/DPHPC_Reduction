@@ -89,12 +89,16 @@ def Reduce(inputs, axis):
                 outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockNum, blockDim_x=ThreadPerBlock)
                 return outputs
 
-            # *** Case
-            else:
+            # multi-line-per-block Case
+            elif (h>=64):
                 '''
                 TODO: WRITE AND TEST 2D ROW REDUCTION FUNCTION AND FINISH THE SCHEDULER HERE
                 '''
                 return
+
+            # use no-loop version
+            elif (w<=1024):
+                WarpPerBlock = (w+31)//32
                 
         # Column Reduction
         if RedType == 0:
