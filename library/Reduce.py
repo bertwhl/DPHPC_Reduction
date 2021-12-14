@@ -92,10 +92,10 @@ def Reduce(inputs, axis):
             # multi-line-per-block Case
             elif (h>=64):
                 if (h>BlockDefault*32):
-                    RowPerBlockRaw = 32
+                    RowPerBlock = 32
                     WarpPerRow = 1
                 else:
-                    RowPerBlockRaw = (h+BlockDefault-1)//BlockDefault
+                    RowPerBlock = (h+BlockDefault-1)//BlockDefault
                     WarpMax = (w+32-1)//32
                     WarpAva = 32//RowPerBlock
                     if (WarpAva>WarpMax):
@@ -110,7 +110,7 @@ def Reduce(inputs, axis):
                 sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
                 # reduce
-                outputs = sdfg(H=h, W=w, inputs=inputs, bn=BlockNum, ln=loopNum, rpb=RowPerBlock, wpr=WarpPerRow)
+                outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockNum, loopNum=loopNum, blockDim_z=RowPerBlock, blockDim_y=WarpPerRow)
                 return outputs
 
             # use no-loop version
@@ -216,7 +216,7 @@ def Reduce(inputs, axis):
                 return outputs
 
 if __name__ == '__main__':
-    inputs = np.random.rand(1024,1024,128)
-    compared = np.sum(inputs, axis=(0,1,2))
-    outputs = Reduce(inputs, axis=(0,1,2))
+    inputs = np.random.rand(1795,23)
+    compared = np.sum(inputs, axis=(1))
+    outputs = Reduce(inputs, axis=(1))
     assert np.allclose(outputs, compared)
