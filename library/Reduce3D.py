@@ -1,12 +1,9 @@
 import dace
-import numpy as np
 from util import *
-from dace.transformation.interstate import GPUTransformSDFG
-from dace.frontend.common import op_repository as oprepo
 
-X = dace.symbol('X')
 H = dace.symbol('H')
 W = dace.symbol('W')
+X = dace.symbol('X')
 
 #A1-B1-A2 -> A1-A2
 #using more blocks
@@ -73,36 +70,75 @@ def ColReduceNarrow(inputs: dace.float64[X, H, W], gridDim_x: dace.int64, loopNu
                 outputs[blockIdx_y,colIdx] += reduced
     return outputs
 
-test = None
-if test == 'normal':
-    sdfg = ColReduce.to_sdfg()
-    sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+#B1-A1-B2 -> A1
+#using more blocks + atomic add
+@dace.program
+def RowReduceNarrow(inputs: dace.float64[X, H, W], gridDim_y: dace.int64, gridDim_x: dace.int64, blockDim_x: dace.int64):
+    outputs = dace.ndarray([H], dtype=dace.float64)
+    outputs[:] = 0
+    for blockIdx_y, blockIdx_x in dace.map[0:gridDim_y, 0:gridDim_x]:
+        for threadIdx_x in dace.map[0:blockDim_x]:
+            value = dace.float64(0)
+            rowIdx = blockIdx_x*blockDim_x+threadIdx_x
+            if rowIdx < H:
+                for colIdx in dace.map[0:W]:
+                    value += inputs[blockIdx_y,rowIdx,colIdx]
+                outputs[rowIdx] += value
+    return outputs
 
-    x = 256
-    h = 8192
-    w = 30
-    gridDim_y = 8
-    loopNum = int(np.ceil(h/gridDim_y))
+if __name__ == '__main__':
+    import numpy as np
+    from dace.transformation.interstate import GPUTransformSDFG
+    test = 'colreduce'
 
-    # Test
-    inputs = np.random.rand(x, h, w)
-    for i in range(4):
-        outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=1, gridDim_y=gridDim_y, blockDim_x=w, loopNum=loopNum)
-    compared = np.sum(inputs, axis=1)
-    assert np.allclose(outputs, compared)
-if test == 'narrow':
-    sdfg = ColReduceNarrow.to_sdfg()
-    sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    x = 256
-    h = 8192
-    w = 30
-    gridDim_x = 1
-    loopNum = int(np.ceil(h/gridDim_x/32))
+    if test == 'colreduce':
+        sdfg = ColReduce.to_sdfg()
+        sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    # Test
-    inputs = np.random.rand(x, h, w)
-    for i in range(4):
-        outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=gridDim_x, loopNum=loopNum)
-    compared = np.sum(inputs, axis=1)
-    assert np.allclose(outputs, compared)
+        x = 256
+        h = 8192
+        w = 30
+        gridDim_y = 8
+        loopNum = int(np.ceil(h/gridDim_y))
+
+        # Test
+        inputs = np.random.rand(x, h, w)
+        for i in range(4):
+            outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=1, gridDim_y=gridDim_y, blockDim_x=w, loopNum=loopNum)
+        compared = np.sum(inputs, axis=1)
+        assert np.allclose(outputs, compared)
+        print("test 3D column reduce successfully")
+    if test == 'colreduce_narrow':
+        sdfg = ColReduceNarrow.to_sdfg()
+        sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+        x = 256
+        h = 8192
+        w = 30
+        gridDim_x = 1
+        loopNum = int(np.ceil(h/gridDim_x/32))
+
+        # Test
+        inputs = np.random.rand(x, h, w)
+        for i in range(4):
+            outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=gridDim_x, loopNum=loopNum)
+        compared = np.sum(inputs, axis=1)
+        assert np.allclose(outputs, compared)
+        print("test 3D col reduce narrow successfully")
+        
+    if test == 'rowreduce_narrow':
+        sdfg = RowReduceNarrow.to_sdfg()
+        sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+        x = 12
+        h = 1000
+        w = 12
+
+        # Test
+        inputs = np.random.rand(x, h, w)
+        outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_y=12, gridDim_x=4, blockDim_x=256)
+        compared = np.sum(inputs, axis=(0,2))
+        assert np.allclose(outputs, compared)
+
+        print("test 3D row reduce narrow successfully")
