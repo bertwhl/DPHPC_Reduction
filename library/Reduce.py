@@ -1,7 +1,7 @@
 import numpy as np
 from dace.transformation.interstate import GPUTransformSDFG
 
-import Reduce1D, Reduce2D
+import Reduce1D, Reduce2D, Reduce3D
 
 # squeeze the dimensions
 def squeeze(a, axis):
@@ -214,7 +214,40 @@ def Reduce(inputs, axis):
                 # reduce
                 outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=BlockPerRow, gridDim_y=BlockPerColumn, blockDim_x=ThreadPerBlock, loopNum=loopNum)
                 return outputs
+    if Dim == 3:
+        x, h, w = Shape
+        if RedType == 0:
+            if w < 32:
+                gridDim_x = max(1,int(64//x))
+                loopNum = int(np.ceil(h/gridDim_x/32))
 
+                # create sdfg
+                sdfg = Reduce3D.ColReduceNarrow.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=gridDim_x, loopNum=loopNum)
+                return outputs
+            else:
+                ThreadPerBlock = w
+                BlockPerRow = 1
+                Default = BlockDefault * 256 // ThreadPerBlock
+                if h<Default:
+                    BlockPerColumn = h
+                else:
+                    BlockPerColumn = Default
+                loopNum = (h+BlockPerColumn-1)//BlockPerColumn
+
+                # create sdfg
+                sdfg = Reduce3D.ColReduce.to_sdfg()
+                sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+                # reduce
+                outputs = sdfg(X=x, H=h, W=w, inputs=inputs, gridDim_x=BlockPerRow, gridDim_y=BlockPerColumn, blockDim_x=ThreadPerBlock, loopNum=loopNum)
+                return outputs
+
+        else:
+            raise NotImplementedError
 if __name__ == '__main__':
     inputs = np.random.rand(1795,23)
     compared = np.sum(inputs, axis=(1))
