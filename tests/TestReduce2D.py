@@ -95,9 +95,19 @@ def test_cr():
     sdfg = ColReduce.to_sdfg()
     sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    BlockPerRow = 4
-    BlockPerColumn = 16
-    ThreadPerBlock = math.ceil(w / BlockPerRow)
+    # BlockPerRow = 4
+    # BlockPerColumn = 16
+    # ThreadPerBlock = math.ceil(w / BlockPerRow)
+    # loopNum = (h+BlockPerColumn-1)//BlockPerColumn
+
+    BlockDefault = 64
+    ThreadPerBlock = w
+    BlockPerRow = 1
+    Default = BlockDefault * 256 // ThreadPerBlock
+    if h<Default:
+        BlockPerColumn = h
+    else:
+        BlockPerColumn = Default
     loopNum = (h+BlockPerColumn-1)//BlockPerColumn
 
     inputs = np.random.rand(h, w)

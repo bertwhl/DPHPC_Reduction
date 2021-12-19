@@ -11,7 +11,7 @@ def getTimeUs(str):
     matchObj = re.match(r'(.*)s', str)
     if matchObj:
         return 1000000 * float(matchObj.group(1))
-    raise Exception('error occurs when parsing time')
+    raise Exception('error occurs when parsing time, can\'t parse ' + str)
 
 def getAvgGPUTime(str):
     lines = str.splitlines()
@@ -23,10 +23,13 @@ def getAvgGPUTime(str):
             item_list = list(filter(None, line.split(" ")))
             if len(item_list) < 4:
                 raise Exception('cannot find desired contents in line')
-            return item_list[3]
+            if line.find("GPU activities:") != -1:
+                return item_list[5]
+            else:
+                return item_list[3]
         if isDataLine and (line.find("API calls:") != -1 or line.find("Error") != -1):
             raise Exception('cannot find desired line')
-    raise Exception('cannot find desired contents')
+    raise Exception('cannot find desired contents, did you actvate dace env?')
 
 def runWithTwoArgs(cmd, arg_list_1, arg_list_2):
     for a1 in arg_list_1:
@@ -51,8 +54,8 @@ def runWithThreeArgs(cmd, arg_list_1, arg_list_2, arg_list_3):
 
 if __name__ == '__main__':
     subprocess.getoutput("conda activate dace")
-    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(16, 513, 16), [4096])
-    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], range(4096, 12000, 512), [12])
-    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], [10240], range(1,20))
+    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(4, 81, 4), [4096])
+    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], range(1024, 4096, 512), [12])
+    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], [10240], range(1,20))
 
  
