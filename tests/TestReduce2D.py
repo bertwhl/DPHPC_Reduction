@@ -5,6 +5,7 @@ from dace.transformation.interstate import GPUTransformSDFG
 
 sys.path.insert(0, "/home/zhoubo")
 from DPHPC_Reduction.library.Reduce2D import *
+from DPHPC_Reduction.tests.ColumnReduce import WarpReadWarpReduce
 
 
 # --------- AB Tests ---------
@@ -103,7 +104,8 @@ def test_cr():
     BlockDefault = 64
     ThreadPerBlock = w
     BlockPerRow = 1
-    Default = BlockDefault * 256 // ThreadPerBlock
+    # Default = BlockDefault * 256 // ThreadPerBlock
+    Default = 256
     if h<Default:
         BlockPerColumn = h
     else:
@@ -134,6 +136,26 @@ def test_crn():
     compared = np.sum(inputs, axis=0)
     assert np.allclose(outputs, compared)    
 
+# 8
+def test_wrwr():
+    sdfg = WarpReadWarpReduce.to_sdfg()
+    sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+    NumSubcolumn = (w+31)//32
+    BlockDefault = 64
+    Default = BlockDefault//NumSubcolumn
+    BlockMax = (h+32-1)//32
+    if Default<BlockMax:
+        BlockPerColumn = Default
+    else:
+        BlockPerColumn = BlockMax
+    loopNum = (h+32*BlockPerColumn-1)//(32*BlockPerColumn)
+
+    inputs = np.random.rand(h, w)
+    outputs = sdfg(H=h, W=w, inputs=inputs, gridDim_x=NumSubcolumn, gridDim_y=BlockPerColumn, loopNum=loopNum)
+    compared = np.sum(inputs, axis=0)
+    assert np.allclose(outputs, compared) 
+
 
 # --------- Run Tests ---------
 
@@ -159,5 +181,7 @@ if __name__ == '__main__':
             test_cr()
         elif test_case == "7":
             test_crn()
+        elif test_case == "8":
+            test_wrwr()
         else:
             raise Exception('invalid case number, only accept 1, 2, 3, 4, 5, 6, 7')

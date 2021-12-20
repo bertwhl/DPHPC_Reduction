@@ -53,9 +53,9 @@ def runWithThreeArgs(cmd, arg_list_1, arg_list_2, arg_list_3):
     print("\n------- finish running \"" + cmd.format("<arg_1>","<arg_2>","<arg_3>") + "\" -------\n")
 
 if __name__ == '__main__':
-    subprocess.getoutput("conda activate dace")
-    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(4, 81, 4), [4096])
-    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], range(1024, 4096, 512), [12])
+    subprocess.getoutput("conda activate dace38")
+    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(96, 513, 16), [4096*2])
+    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,8], range(1024, 1024*48, 1024), [1024])
     # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], [10240], range(1,20))
 
  

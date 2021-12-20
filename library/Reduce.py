@@ -200,7 +200,7 @@ def Reduce(inputs, axis):
                 else:
                     ThreadPerBlock = w
                     BlockPerRow = 1
-                    Default = BlockDefault * 256 // ThreadPerBlock
+                    Default = 256
                     if h<Default:
                         BlockPerColumn = h
                     else:
@@ -217,7 +217,7 @@ def Reduce(inputs, axis):
     if Dim == 3:
         x, h, w = Shape
         if RedType == 0:
-            if w < 32:
+            if (w<16 and h>1024*8):
                 gridDim_x = max(1,int(64//x))
                 loopNum = int(np.ceil(h/gridDim_x/32))
 
@@ -231,7 +231,8 @@ def Reduce(inputs, axis):
             else:
                 ThreadPerBlock = w
                 BlockPerRow = 1
-                Default = BlockDefault * 256 // ThreadPerBlock
+                # Default = BlockDefault * 256 // ThreadPerBlock
+                Default = 256
                 if h<Default:
                     BlockPerColumn = h
                 else:
