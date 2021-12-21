@@ -129,10 +129,10 @@ def Reduce(inputs, axis):
             # use global memory version
             elif (h>32):
                 # calculate parameters
-                if (h==64):
-                    BlockPerRow = 1
-                else:
-                    BlockPerRow = 2
+                # if (h==64):
+                BlockPerRow = 1
+                # else:
+                    # BlockPerRow = 2
                 loopNum = (w+BlockPerRow*1024-1)//(BlockPerRow*1024)
 
                 # create sdfg
@@ -217,7 +217,7 @@ def Reduce(inputs, axis):
     if Dim == 3:
         x, h, w = Shape
         if RedType == 0:
-            if (w<16 and h>1024*8):
+            if (w<32):
                 gridDim_x = max(1,int(64//x))
                 loopNum = int(np.ceil(h/gridDim_x/32))
 

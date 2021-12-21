@@ -49,10 +49,8 @@ def test_rrg():
     sdfg = RowReduceGlobal.to_sdfg()
     sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    if (h==64):
-        BlockPerRow = 1
-    else:
-        BlockPerRow = 2
+    BlockDefault = 64
+    BlockPerRow = max(1, math.floor(BlockDefault / h))
     loop_num = (w+BlockPerRow*1024-1)//(BlockPerRow*1024)
 
     input = np.random.rand(h, w)
