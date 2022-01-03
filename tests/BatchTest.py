@@ -1,5 +1,6 @@
 import re
 import subprocess
+import numpy as np
 
 def getTimeUs(str):
     matchObj = re.match(r'(.*)ms', str)
@@ -46,16 +47,22 @@ def runWithThreeArgs(cmd, arg_list_1, arg_list_2, arg_list_3):
         for a2 in arg_list_2:
             for a3 in arg_list_3:
                 formated_cmd = cmd.format(a1, a2, a3)
-                cmd_output = subprocess.getoutput(formated_cmd)
-                time_string = getAvgGPUTime(cmd_output)
-                time_us = getTimeUs(time_string)
-                print('{0:2d} {1:8d} {2:14d} {3:20f}'.format(a1, a2, a3, time_us))
+                array = []
+                for i in range(1):
+                    cmd_output = subprocess.getoutput(formated_cmd)
+                    time_string = getAvgGPUTime(cmd_output)
+                    time_us = getTimeUs(time_string)
+                    array.append(time_us)
+                average = np.mean(array)
+                std = np.std(array)
+                delta = 1.96 * std / np.sqrt(50)
+                print('{0:2d} {1:8d} {2:14d} {3:20f} {4:26f} {5:32f} {6:38f}'.format(a1, a2, a3, average, std, average + delta, average - delta))
     print("\n------- finish running \"" + cmd.format("<arg_1>","<arg_2>","<arg_3>") + "\" -------\n")
 
 if __name__ == '__main__':
     subprocess.getoutput("conda activate dace38")
-    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(4, 97, 4), [4096*2])
-    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,8], range(1024, 1024*48, 1024), [1024])
+    # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [1,3,4], range(4, 97, 4), [4096*2])
+    runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,8], range(1024, 1024*25, 1024), [1024])
     # runWithThreeArgs("nvprof python tests/TestReduce2D.py {} {} {}", [6,7], [10240], range(1,20))
 
  

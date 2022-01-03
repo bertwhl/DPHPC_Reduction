@@ -94,15 +94,8 @@ def test_cr():
     sdfg = ColReduce.to_sdfg()
     sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
 
-    # BlockPerRow = 4
-    # BlockPerColumn = 16
-    # ThreadPerBlock = math.ceil(w / BlockPerRow)
-    # loopNum = (h+BlockPerColumn-1)//BlockPerColumn
-
-    BlockDefault = 64
     ThreadPerBlock = w
     BlockPerRow = 1
-    # Default = BlockDefault * 256 // ThreadPerBlock
     Default = 256
     if h<Default:
         BlockPerColumn = h
@@ -182,4 +175,4 @@ if __name__ == '__main__':
         elif test_case == "8":
             test_wrwr()
         else:
-            raise Exception('invalid case number, only accept 1, 2, 3, 4, 5, 6, 7')
+            raise Exception('invalid case number, only accept 1, 2, 3, 4, 5, 6, 7, 8')
