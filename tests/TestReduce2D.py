@@ -148,6 +148,45 @@ def test_wrwr():
     assert np.allclose(outputs, compared) 
 
 
+@dace.program
+def NonAtomicAdd(inputs: dace.float64[H, W], num_blocks_per_row: dace.int64, loopNum: dace.int64):
+    outputs = dace.ndarray([H], dtype=dace.float64)
+    outputs[:] = 0
+    for blockIdx_y, blockIdx_x in dace.map[0:num_blocks_per_row, 0:H]:
+        shared = dace.ndarray([1], dtype=dace.float64, storage=dace.StorageType.GPU_Shared)
+        shared[0] = 0
+        row_id = blockIdx_x
+        delta = 1024*num_blocks_per_row
+        for warp_id, thread_id in dace.map[0:32,0:32]:
+            col_id = 1024*blockIdx_y + 32*warp_id +thread_id
+            value = dace.float64(0)
+            for loopIdx in dace.map[0:loopNum]:
+                if col_id<W:
+                    value += inputs[row_id, col_id]
+                col_id += delta
+            reduced = warpReduce_sum(value)
+            if thread_id == 0:
+                shared[0] += reduced
+        for warp_id, thread_id in dace.map[0:32,0:32]:
+            if (warp_id==0) and (thread_id==0):
+                outputs[row_id] += shared[0] 
+    return outputs
+
+# 9
+def test_non_atomic():
+    sdfg = NonAtomicAdd.to_sdfg()
+    sdfg.apply_transformations(GPUTransformSDFG, {'sequential_innermaps': False})
+
+    BlockDefault = 64
+    grid_dim = max(1, math.floor(BlockDefault / h))
+    loop_num = math.ceil(w / grid_dim / 1024)
+
+    input = np.random.rand(h, w)
+    output = sdfg(H=h, W=w, inputs=input, num_blocks_per_row=grid_dim, loopNum=loop_num)
+    ans = np.sum(input, axis=1)
+    assert np.allclose(ans, output)
+
+
 # --------- Run Tests ---------
 
 
@@ -174,5 +213,7 @@ if __name__ == '__main__':
             test_crn()
         elif test_case == "8":
             test_wrwr()
+        elif test_case == "9": 
+            test_non_atomic()
         else:
-            raise Exception('invalid case number, only accept 1, 2, 3, 4, 5, 6, 7, 8')
+            raise Exception('invalid case number, only accept 1, 2, 3, 4, 5, 6, 7, 8, 9')
